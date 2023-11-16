@@ -4,9 +4,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-import frc.robot.consoles.Logger;
+//import frc.robot.consoles.Logger;
 //import frc.robot.subsystems.Pathweaver; 
-import frc.robot.consoles.Shuffler;
+//import frc.robot.consoles.Shuffler;
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
-        Logger.setup("Initializing Robot...");
+        //Logger.setup("Initializing Robot...");
 
         // Initialize our RobotManager, which initializes and perists the state of the robot,
         // including flags, sensors, devices, subsystems, commands, shuffleboard,
@@ -69,7 +69,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void disabledInit() {
-        Logger.ending("Disabling Robot...");
+        //Logger.ending("Disabling Robot...");
 
         CommandScheduler.getInstance().cancelAll();
     }
@@ -87,7 +87,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
-        Logger.setup("Initializing Autonomous Mode...");
+        //Logger.setup("Initializing Autonomous Mode...");
 
         CommandScheduler.getInstance().cancelAll();
 
@@ -107,10 +107,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        Logger.setup("Initializing Teleop Mode...");
+        //Logger.setup("Initializing Teleop Mode...");
 
         // Set subsystem "teleop" default commands
-        BotSubsystems.setTeleopDefaultCommands();
+        //BotSubsystems.setTeleopDefaultCommands();
 
         CommandScheduler.getInstance().cancelAll();
     }
@@ -121,13 +121,13 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         // Configure all controllers
-        BotControllers.configure();
-        RobotManager.botShuffler.update();
+        //BotControllers.configure();
+        //RobotManager.botShuffler.update();
     }
 
     @Override
     public void testInit() {
-        Logger.setup("Initializing Test Mode...");
+        //Logger.setup("Initializing Test Mode...");
 
         CommandScheduler.getInstance().cancelAll();
 

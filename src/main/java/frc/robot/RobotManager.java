@@ -6,8 +6,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
-import frc.robot.consoles.Shuffler;
-import frc.robot.consoles.Logger;
 
 // This is where the robot state is initialized and persisted.
 public class RobotManager {
@@ -33,7 +31,7 @@ public class RobotManager {
     //-------------------------------//
 
     // The robot Shuffler instance
-    public static Shuffler botShuffler;
+    //public static Shuffler botShuffler;
 
     // The auto command chooser to add to SmartDashboard
     public static SendableChooser<Command> autoCommandChooser;
@@ -44,7 +42,7 @@ public class RobotManager {
 
     // It is important that the robot be initialized in exactly this order.
     public static void initialize() {
-        Logger.setup("Initializing RobotManager...");
+        /*Logger.setup("Initializing RobotManager...");
 
         // Pre-intialize the Shuffler
         botShuffler = new Shuffler();
@@ -57,7 +55,7 @@ public class RobotManager {
 
         // Intialize and configure the Shuffler
         botShuffler.initialize();
-        //botShuffler.configure();    
+        //botShuffler.configure();    */
 
         // Setup SmartDashboard
         setupSmartDashboard();
@@ -65,19 +63,9 @@ public class RobotManager {
 
     // Add the desired commands to the SmartDashboard
     private static void setupSmartDashboard() {
-        Logger.setup("Adding AutoModes to SmartDashboard...");
+        //Logger.setup("Adding AutoModes to SmartDashboard...");
 
         autoCommandChooser = new SendableChooser<>();
-
-        // Add commands to the autonomous command chooser
-        autoCommandChooser.setDefaultOption("Testing Auto Command", BotCommands.defaultAutoCommand);
-        autoCommandChooser.addOption("Left", BotCommands.autoLeft);
-        autoCommandChooser.addOption("Right", BotCommands.autoRight);
-        autoCommandChooser.addOption("Inner", BotCommands.innerBalance);
-        
-
-        // Put the chooser on the dashboard
-        SmartDashboard.putData("AutoMode", autoCommandChooser);
     }
 
 }
