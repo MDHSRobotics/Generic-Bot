@@ -14,6 +14,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * project.
  */
 public class Robot extends TimedRobot {
+    private Command m_autonomousCommand;
+
+    private RobotContainer m_robotContainer;
 
     // When connected to the RoboRio, use this constructor because it will use the
     // proper period duration
@@ -39,7 +42,7 @@ public class Robot extends TimedRobot {
         // Initialize our RobotManager, which initializes and perists the state of the robot,
         // including flags, sensors, devices, subsystems, commands, shuffleboard,
         // and puts our autonomous chooser on the dashboard.
-        RobotManager.initialize();
+        m_robotContainer = new RobotContainer();
 
         //Pathweaver.intializeTrajectories();
     }
@@ -79,7 +82,7 @@ public class Robot extends TimedRobot {
     }
 
     public Command getAutonomousCommand() {
-        return RobotManager.autoCommandChooser.getSelected();
+        return m_robotContainer.getAutonomousCommand();
     }
 
     /**
