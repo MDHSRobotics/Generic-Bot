@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.SwerveModule;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class MAXSwerveModule {
     private final CANSparkMax m_drivingSparkMax;
@@ -106,6 +107,7 @@ public class MAXSwerveModule {
         m_drivingSparkMax.burnFlash();
         m_turningSparkMax.burnFlash();
 
+        
         m_chassisAngularOffset = chassisAngularOffset;
         m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());
         m_drivingEncoder.setPosition(0);
@@ -147,6 +149,7 @@ public class MAXSwerveModule {
      * @param desiredState Desired state with speed and angle.
      */
     public void setDesiredState(SwerveModuleState desiredState) {
+        SmartDashboard.putNumber("enc: ", m_turningEncoder.getPosition());
         // Apply chassis angular offset to the desired state.
         SwerveModuleState correctedDesiredState = new SwerveModuleState();
         correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;

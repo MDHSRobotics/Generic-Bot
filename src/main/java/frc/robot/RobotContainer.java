@@ -7,6 +7,8 @@ import frc.robot.subsystems.Swerve.Swerve;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.MathUtil;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -42,21 +44,17 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
+        
         // Configure default commands
         m_swerve.setDefaultCommand(
             // The left stick controls translation of the robot.
             // Turning is controlled by the X axis of the right stick.
-            new RunCommand(() -> m_swerve.drive(
-                    // Multiply by max speed to map the joystick unitless inputs to actual units.
-                    // This will map the [-1, 1] to [max speed backwards, max speed forwards],
-                    // converting them to actual units.
-                    -m_xspeedLimiter.calculate(applyDeadband(m_driverController.getLeftY(), 0.02))
-                        * Drivetrain.kMaxSpeedMetersPerSecond,
-                    -m_yspeedLimiter.calculate(applyDeadband(m_driverController.getLeftX(), 0.02))
-                        * Drivetrain.kMaxSpeedMetersPerSecond,
-                    -m_rotLimiter.calculate(applyDeadband(m_driverController.getRightX(), 0.02))
-                        * Drivetrain.kMaxAngularSpeed,
-                    true),
+            new RunCommand(
+                () -> m_swerve.drive(
+                    -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
+                    -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
+                    -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
+                    true, true),
                 m_swerve));
     }
 
