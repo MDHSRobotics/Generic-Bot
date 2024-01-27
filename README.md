@@ -1,2 +1,0 @@
-# Generic Bot
-Template Bot

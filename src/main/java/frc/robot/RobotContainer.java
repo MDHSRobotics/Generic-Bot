@@ -1,91 +1,63 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
 package frc.robot;
 
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.Constants.*;
-import frc.robot.subsystems.Swerve.Swerve;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.math.filter.SlewRateLimiter;
+import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.generated.TunerConstants;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and button mappings) should be declared here.
- */
 public class RobotContainer {
-    // The robot's subsystems
-    private final Swerve m_swerve = new Swerve();
+  private double MaxSpeed = 6; // 6 meters per second desired top speed
+  private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
-    // The driver's controller
-    XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+  /* Setting up bindings for necessary control of the swerve drive platform */
+  private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
+  private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
-    //Devices
-    
+  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
+                                                               // driving in open loop
+  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+  private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private static double angleOffset = 0;
+  private void configureBindings() {
+    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+        drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with
+                                                                                           // negative Y (forward)
+            .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+            .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+        ));
 
-    private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
-    private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(3);
-    private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3);
+    joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+    joystick.b().whileTrue(drivetrain
+        .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
 
-    /**
-   * Use this method to define bindings between conditions and commands. These are useful for
-   * automating robot behaviors based on button and sensor input.
-   *
-   * <p>Should be called during {@link Robot#robotInit()}.
-   *
-   * <p>Event binding methods are available on the {@link Trigger} class.
-   */
-    public RobotContainer() {
-        // Configure the button bindings
-        configureButtonBindings();
+    // reset the field-centric heading on left bumper press
+    joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
 
-        
-        // Configure default commands
-        m_swerve.setDefaultCommand(
-            // The left stick controls translation of the robot.
-            // Turning is controlled by the X axis of the right stick.
-            new RunCommand(
-                () -> m_swerve.drive(
-                    -MathUtil.applyDeadband(m_driverController.getLeftY(), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getLeftX(), OIConstants.kDriveDeadband),
-                    -MathUtil.applyDeadband(m_driverController.getRightX(), OIConstants.kDriveDeadband),
-                    true, true),
-                m_swerve));
+    if (Utils.isSimulation()) {
+      drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
     }
+    drivetrain.registerTelemetry(logger::telemeterize);
+  }
 
+  public RobotContainer() {
+    configureBindings();
+  }
 
-    public void configureButtonBindings() {
-    }
-
-    public static double getAngleOffset() {
-        return angleOffset;
-    }
-
-    public static void setAngleOffset(double offset) {
-        angleOffset = offset;
-    }
-
-    private double applyDeadband(double value, double deadband){
-        if (Math.abs(value) > deadband) {
-            if (1 / deadband > 1.0e12) {
-              return value > 0.0 ? value - deadband : value + deadband;
-            }
-            if (value > 0.0) {
-              return 1 * (value - deadband) / (1 - deadband);
-            } else {
-              return 1 * (value + deadband) / (1 - deadband);
-            }
-        } else {
-            return 0.0;
-        }
-    }
-
-    public Command getAutonomousCommand() {
-        return new RunCommand(() -> System.out.println("auto")); 
-    }
+  public Command getAutonomousCommand() {
+    return Commands.print("No autonomous command configured");
+  }
 }
