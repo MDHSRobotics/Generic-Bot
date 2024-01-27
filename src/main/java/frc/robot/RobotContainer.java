@@ -41,8 +41,16 @@ public class RobotContainer {
         ));
 
     joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+    
     joystick.b().whileTrue(drivetrain
         .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
+
+    joystick.y().whileTrue(drivetrain
+        .applyRequest(() -> drive.withVelocityX( MaxSpeed) // Drive forward 
+            .withVelocityY(0.) 
+            .withRotationalRate(0.) 
+        ));
+
 
     // reset the field-centric heading on left bumper press
     joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
